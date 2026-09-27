@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nosa Tour — Все экскурсии</title>
+<meta name="description" content="Полный список морских, пустынных, комбо и исторических экскурсий в Шарм-эль-Шейхе с ценами.">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand"><img src="images/logo-horizontal.svg" alt="Nosa Tour" width="115" height="44"></a>
+    <nav class="main-nav">
+      <a href="index.html" data-i18n="nav_home">Главная</a>
+      <a href="tours.html" class="is-active" data-i18n="nav_tours">Экскурсии</a>
+      <a href="index.html#contact" data-i18n="nav_contact">Контакты</a>
+    </nav>
+    <div class="header-actions">
+      <div class="lang-switch">
+        <a href="https://www.instagram.com/nosa_tour/" class="ig-icon" target="_blank" rel="noopener" aria-label="Instagram @nosa_tour"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><defs><radialGradient id="igGrad" cx="30%" cy="107%" r="150%"><stop offset="0" stop-color="#FDF497"/><stop offset=".05" stop-color="#FDF497"/><stop offset=".45" stop-color="#FD5949"/><stop offset=".6" stop-color="#D6249F"/><stop offset=".9" stop-color="#285AEB"/></radialGradient></defs><rect x="1" y="1" width="22" height="22" rx="6.5" fill="url(#igGrad)"/><rect x="5.6" y="5.6" width="12.8" height="12.8" rx="4" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3.05" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.05" cy="7.95" r="1" fill="#fff"/></svg></a>
+        <span class="ls-divider" aria-hidden="true"></span>
+        <button data-lang="hy">ՀԱՅ</button>
+        <button data-lang="ru">РУС</button>
+        <button data-lang="en">ENG</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <h1 data-i18n="tours_page_title">Все экскурсии</h1>
+    <p data-i18n="tours_page_sub">Выберите категорию и найдите подходящую именно вам экскурсию</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="filter-bar" id="filterBar">
+    <button data-filter="all" class="active" data-i18n="filter_all">Все</button>
+    <button data-filter="sea" data-i18n="filter_sea">Морские</button>
+    <button data-filter="adventure" data-i18n="filter_adventure">Пустыня</button>
+    <button data-filter="family" data-i18n="filter_family">С детьми</button>
+    <button data-filter="combo" data-i18n="filter_combo">Комбо</button>
+    <button data-filter="historical" data-i18n="filter_historical">Исторические</button>
+  </div>
+
+  <div class="tours-grid" id="toursGrid">
+    <!-- filled by script.js -->
+  </div>
+</div>
+
+<footer class="site-footer" id="contact">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <img src="images/logo.svg" class="footer-logo" alt="Nosa Tour" width="120" height="150">
+        <p style="margin-top:8px; color:rgba(255,255,255,.7)" data-i18n="footer_location">Шарм-эль-Шейх, Египет</p>
+      </div>
+      <div class="footer-contact">
+        <h4 data-i18n="footer_contact_title">Связаться с нами</h4>
+<div class="footer-links">
+        <a href="#" class="tg-link" data-open-booking>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 2.8 11.9c-1.2.5-1.2 1.2-.2 1.5l4.9 1.5 1.9 5.8c.2.6.4.8.9.8.4 0 .6-.2.8-.4l2.6-2.5 5 3.7c.7.4 1.3.2 1.5-.7l3.5-16.3c.3-1.1-.4-1.6-1.2-1.3Zm-11.9 12-1.3-4.3 8.6-6.9c.4-.3.7-.1.5.3l-7.8 10.9Z"/></svg>
+          Telegram
+        </a>
+        <a href="https://www.instagram.com/nosa_tour/" class="tg-link" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg>
+          @nosa_tour
+        </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Nosa Tour</span>
+      <span data-i18n="footer_rights">Все права защищены</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Booking modal -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal-box">
+    <button class="modal-close" aria-label="Close">×</button>
+    <h2 data-i18n="modal_title">Бронирование</h2>
+    <span id="modalTourName"></span>
+    <form id="bookingForm">
+      <div class="form-row">
+        <label for="bfTour" data-i18n="modal_tour_select">Экскурсия</label>
+        <select id="bfTour" required></select>
+      </div>
+      <div class="form-row" id="bfOptionRow" hidden>
+        <label for="bfOption" data-i18n="modal_option">Вариант</label>
+        <select id="bfOption"></select>
+      </div>
+      <div class="form-row">
+        <label for="bfName" data-i18n="modal_name">Имя и фамилия</label>
+        <input type="text" id="bfName" autocomplete="name" required>
+      </div>
+      <div class="form-row">
+        <label for="bfPhone" data-i18n="modal_phone">Номер телефона</label>
+        <input type="tel" id="bfPhone" autocomplete="tel" inputmode="tel" minlength="6" placeholder="+" required>
+      </div>
+      <div class="form-row form-grid-2">
+        <div>
+          <label for="bfMessenger" data-i18n="modal_messenger">Мессенджер для связи</label>
+          <select id="bfMessenger" required>
+            <option value="WhatsApp">WhatsApp</option>
+            <option value="Viber">Viber</option>
+            <option value="Telegram">Telegram</option>
+          </select>
+        </div>
+        <div>
+          <label for="bfMessengerId" id="bfMessengerIdLabel">Номер в мессенджере</label>
+          <input type="text" id="bfMessengerId" required>
+        </div>
+      </div>
+      <div class="form-row form-grid-2">
+        <div>
+          <label for="bfHotel" data-i18n="modal_hotel">Название отеля</label>
+          <input type="text" id="bfHotel" required>
+        </div>
+        <div>
+          <label for="bfRoom" data-i18n="modal_room">Номер комнаты</label>
+          <input type="text" id="bfRoom" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="bfDate" data-i18n="modal_date">Желаемая дата</label>
+        <input type="date" id="bfDate" required>
+        <p class="modal-note" data-i18n="modal_date_note" style="margin-top:6px;margin-bottom:0;">Бронирование принимается не менее чем за 24 часа</p>
+      </div>
+      <div class="form-row form-grid-3">
+        <div>
+          <label for="bfAdults" data-i18n="modal_adults">Взрослых</label>
+          <input type="number" id="bfAdults" min="1" value="1" required>
+        </div>
+        <div>
+          <label for="bfChildrenU6" data-i18n="modal_children_u6">Детей (до 6 лет)</label>
+          <input type="number" id="bfChildrenU6" min="0" value="0" required>
+        </div>
+        <div>
+          <label for="bfChildren6to11" data-i18n="modal_children_6to11">Детей (6–11+)</label>
+          <input type="number" id="bfChildren6to11" min="0" value="0" required>
+        </div>
+      </div>
+      <div class="form-row" id="bfUnitsRow" hidden></div>
+      <div class="booking-total" id="bookingTotal" aria-live="polite"></div>
+      <div class="form-row">
+        <label for="bfComment" data-i18n="modal_comment">Комментарий (необязательно)</label>
+        <textarea id="bfComment" rows="2"></textarea>
+      </div>
+      <p class="modal-note" data-i18n="modal_note">Заявка придёт нам сразу, и мы скоро свяжемся с вами</p>
+      <p class="booking-status" id="bookingStatus" role="status" aria-live="polite"></p>
+      <button type="submit" class="btn btn-primary" data-i18n="modal_submit">Отправить заявку</button>
+    </form>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
