@@ -92,6 +92,8 @@ const UI = {
     units_buggy_1: "4-տեղանոց բագի (հատ)",
     units_buggy_hint: "Գինը մեկ բագիի համար է․ 2-տեղանոցում նստում է մինչև 2, 4-տեղանոցում՝ մինչև 4 հոգի։",
     units_seats_short: "Տեղերը բավարար չեն բոլոր հյուրերի համար․ ավելացրեք բագի",
+    units_dive: "Դայվինգ (քանի՞ հոգի, 11+ տարեկան)",
+    units_dive_hint: "Դայվինգը լրացուցիչ է՝ մեկ հոգու համար $12-ից․ սուզվում եք հրահանգչի հետ, սարքավորումը ներառված է։ Ճշգրիտ գինը կհաստատի մենեջերը։",
     modal_date: "Ցանկալի ամսաթիվ",
     modal_date_note: "Ամրագրումն ընդունվում է առնվազն 24 ժամ առաջ",
     modal_adults: "Մեծահասակներ",
@@ -186,6 +188,8 @@ const UI = {
     units_buggy_1: "Багги 4-местные (шт.)",
     units_buggy_hint: "Цена за одну машину: в 2-местную садятся до 2, в 4-местную — до 4 человек.",
     units_seats_short: "Мест не хватает на всех гостей — добавьте багги",
+    units_dive: "Дайвинг (сколько человек, с 11 лет)",
+    units_dive_hint: "Дайвинг — доплата от $12 с человека: погружение с инструктором, снаряжение включено. Точную цену подтвердит менеджер.",
     modal_date: "Желаемая дата",
     modal_date_note: "Бронирование принимается не менее чем за 24 часа",
     modal_adults: "Взрослых",
@@ -280,6 +284,8 @@ const UI = {
     units_buggy_1: "4-seat buggies",
     units_buggy_hint: "Price is per buggy: a 2-seater takes up to 2 people, a 4-seater up to 4.",
     units_seats_short: "Not enough seats for all guests — add a buggy",
+    units_dive: "Diving (how many people, 11+)",
+    units_dive_hint: "Diving is an add-on from $12 per person: a dive with an instructor, gear included. The manager will confirm the exact price.",
     modal_date: "Preferred date",
     modal_date_note: "Bookings require at least 24 hours' notice",
     modal_adults: "Adults",
@@ -780,8 +786,10 @@ const TOURS = [
                        adults + kids 6–11 count, under-6 free)
      seats([[n, $]])  vehicles by seat count; the visitor picks how many of each
      request          custom price, no total
-     options          variants the visitor chooses (each with its own rule) */
+     options          variants the visitor chooses (each with its own rule)
+     withDive(rule, $) adds an optional dive per person (adults + kids 6–11) */
 const per = (a, c, s) => ({ type: "per", a, c, s });
+const withDive = (rule, price) => ({ ...rule, dive: price });
 const pairW = (one, two) => ({ type: "pair", kind: "weight", one, two });
 const pairQ = (one, two) => ({ type: "pair", kind: "quad", one, two });
 const seats = (list) => ({ type: "seats", list });
@@ -789,7 +797,7 @@ const request = { type: "request" };
 const opt = (hy, ru, en, rule) => ({ label: { hy, ru, en }, rule });
 
 const PRICING = {
-  "ras-mohammed-tiran": per(32, 16, 16),
+  "ras-mohammed-tiran": withDive(per(32, 16, 16), 12),
   "lux-yacht": per(55, 28, 0),
   "yacht-rental": request,
   "vip-speedboat": request,
@@ -845,7 +853,9 @@ function calcBookingTotal(rule, adults, kids, small, units = {}) {
     if (adults) parts.push(`${adults} × $${rule.a}`);
     if (kids) parts.push(`${kids} × $${rule.c}`);
     if (small && rule.s) parts.push(`${small} × $${rule.s}`);
-    return { total: adults * rule.a + kids * rule.c + small * rule.s, detail: parts.join(" + ") };
+    const divers = rule.dive ? Math.min(units.divers || 0, adults + kids) : 0;
+    if (divers) parts.push(`${divers} × $${rule.dive} 🤿`);
+    return { total: adults * rule.a + kids * rule.c + small * rule.s + divers * rule.dive, detail: parts.join(" + ") };
   }
   if (rule.type === "pair") {
     const n = adults + kids;
@@ -1168,7 +1178,7 @@ function refreshBookingUnits() {
   const dict = UI[getLang()];
   const rule = currentPricingRule();
   const count = (id) => Math.max(0, parseInt(document.getElementById(id).value, 10) || 0);
-  const type = !rule ? "" : rule.type === "pair" ? `pair-${rule.kind}` : rule.type === "seats" ? "seats" : "";
+  const type = !rule ? "" : rule.type === "pair" ? `pair-${rule.kind}` : rule.type === "seats" ? "seats" : rule.dive ? "dive" : "";
 
   if (!type) {
     row.hidden = true;
@@ -1189,6 +1199,16 @@ function refreshBookingUnits() {
       `<select id="bfPairs">${Array.from({ length: max + 1 }, (_, i) => `<option value="${i}">${i}</option>`).join("")}</select>` +
       `<p class="modal-note units-hint">${dict[key + "_hint"]}</p>`;
     const select = document.getElementById("bfPairs");
+    select.value = String(Math.min(prev, max));
+    select.addEventListener("change", updateBookingTotal);
+  } else if (type === "dive") {
+    const max = count("bfAdults") + count("bfChildren6to11");
+    const prev = same && document.getElementById("bfDivers") ? Number(document.getElementById("bfDivers").value) : 0;
+    row.innerHTML =
+      `<label for="bfDivers">${dict.units_dive}</label>` +
+      `<select id="bfDivers">${Array.from({ length: max + 1 }, (_, i) => `<option value="${i}">${i}</option>`).join("")}</select>` +
+      `<p class="modal-note units-hint">${dict.units_dive_hint}</p>`;
+    const select = document.getElementById("bfDivers");
     select.value = String(Math.min(prev, max));
     select.addEventListener("change", updateBookingTotal);
   } else {
@@ -1224,8 +1244,10 @@ function resetBookingUnits() {
 function readBookingUnits() {
   const pairs = document.getElementById("bfPairs");
   const vehicles = [0, 1].map((i) => document.getElementById(`bfVeh${i}`));
+  const divers = document.getElementById("bfDivers");
   return {
     pairs: pairs ? Number(pairs.value) || 0 : 0,
+    divers: divers ? Number(divers.value) || 0 : 0,
     vehicles: vehicles.map((el) => (el ? Math.max(0, Number(el.value) || 0) : 0)),
   };
 }
@@ -1241,6 +1263,9 @@ function bookingUnitsSummary() {
   }
   if (rule.type === "seats") {
     return ["Բագի", `2-տեղանոց × ${u.vehicles[0]}, 4-տեղանոց × ${u.vehicles[1]}`];
+  }
+  if (rule.dive) {
+    return ["Դայվինգ (հոգի)", String(u.divers)];
   }
   return null;
 }
